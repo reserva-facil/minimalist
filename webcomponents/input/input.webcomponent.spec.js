@@ -39,18 +39,55 @@ describe('mn-input (webcomponent)', () => {
     })
   })
 
-  // all style specs need to be refactor, to better organization and readability
-  describe('css style', () => {
-    it('should have a inline-block display', () => {
-      expect(element).to.have.style('display', 'inline-block')
-    })
-
+  describe('element style', () => {
     it('should have a relative position', () => {
       expect(element).to.have.style('position', 'relative')
     })
 
+    it('should have a inline-block display', () => {
+      expect(element).to.have.style('display', 'inline-block')
+    })
+
     it('should have a margin', () => {
       expect(element).to.have.style('margin', '1.5em 0px 1em')
+    })
+
+    it.skip('should have a transform', () => {
+      // need to be fixed in chai-style
+      expect(element).to.have.style('transform', 'translateZ(0)')
+    })
+
+    it('should have a visible overflow', () => {
+      expect(element).to.have.style('overflow', 'visible')
+    })
+
+    it('should have 0 outline', () => {
+      expect(element).to.have.style('outline', '0')
+    })
+
+    it('should have max-width 100%', () => {
+      expect(element).to.have.style('max-width', '100%')
+    })
+
+    it('should have a box-sizing in border-box', () => {
+      expect(element).to.have.style('box-sizing', 'border-box')
+    })
+
+    it.skip('should have a transparent tap-highlight-color', () => {
+      // need to be fixed in chai-style
+      expect(element).to.have.style('-webkit-tap-highlight-color', 'rgba(0,0,0,0)')
+    })
+
+    it('should have 2em line-height', () => {
+      expect(element).to.have.style('line-height', '2em')
+    })
+
+    it('should have a ellipsis if text-overflow', () => {
+      expect(element).to.have.style('text-overflow', 'ellipsis')
+    })
+
+    it('should disable user-select', () => {
+      expect(element).to.have.style('-webkit-user-select', 'none')
     })
   })
 
