@@ -211,14 +211,14 @@ describe('mn-password (webcomponent)', () => {
   })
 
   describe('attribute required', () => {
-    it('should be invalid if validate without fill value', () => {
+    it('should be invalid if not have fill value', () => {
       element.setAttribute('required', '')
       element.validate()
       expect(element).to.have.class('invalid')
       expect(element).to.have.class('required')
     })
 
-    it('should be valid if validate with filled value', () => {
+    it('should be valid if have filled value', () => {
       element.setAttribute('required', '')
       element.value = 'test'
       element.validate()
@@ -235,19 +235,17 @@ describe('mn-password (webcomponent)', () => {
       expect(element).to.not.have.class('pattern')
     })
 
-    it('should be invalid if value is not setted', () => {
-      // regex to check if element starts with letter t
+    it('should be invalid if value is not defined', () => {
       element.setAttribute('required', '')
-      element.setAttribute('pattern', '^t')
+      element.setAttribute('pattern', '^t') // starts with letter t
       element.validate()
       expect(element).to.have.class('invalid')
       expect(element).to.have.class('required')
     })
 
-    it('should be valid if value is setted', () => {
-      // regex to check if element starts with letter t
+    it('should be valid if value is defined', () => {
       element.setAttribute('required', '')
-      element.setAttribute('pattern', '^t')
+      element.setAttribute('pattern', '^t') // starts with letter t
       element.value = 'test'
       element.validate()
       expect(element).to.not.have.class('invalid')
