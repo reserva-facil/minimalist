@@ -3,16 +3,11 @@ const {HTMLElement} = window
 module.exports = class MnInput extends HTMLElement {
   constructor(self) {
     self = super(self)
-    this.validations = {
-      required: () => this.value === '',
-      pattern: () => {
-        const reg = new RegExp(this.getAttribute('pattern'))
 
-        return this.value
-          ? !reg.test(this.value)
-          : false
-      },
+    this.validations = {
+      required: () => this.value === ''
     }
+
     return self
   }
 
@@ -28,6 +23,7 @@ module.exports = class MnInput extends HTMLElement {
     this._setAttributeAutocapitalize()
     this._setAttributeAutocomplete()
     this._setAttributeSpellcheck()
+    this._setAttributeAutofocus()
   }
 
   _setCssClasses() {
@@ -88,6 +84,10 @@ module.exports = class MnInput extends HTMLElement {
 
   _setAttributeSpellcheck() {
     this.input.setAttribute('spellcheck', 'off')
+  }
+
+  _setAttributeAutofocus() {
+    this.autofocus = this.hasAttribute('autofocus')
   }
 
   static get observedAttributes() {
@@ -166,6 +166,12 @@ module.exports = class MnInput extends HTMLElement {
       value
         ? this.input.setAttribute('autocapitalize', value)
         : this.input.removeAttribute('autocapitalize')
+    }
+  }
+
+  set autofocus(value) {
+    if (this.input) {
+      this.input.autofocus = value
     }
   }
 
