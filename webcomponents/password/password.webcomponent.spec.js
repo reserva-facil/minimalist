@@ -297,6 +297,24 @@ describe('mn-password (webcomponent)', () => {
       // need to be implemented
     })
   })
+
+  describe('attribute decimal', () => {
+    it.skip('should have attribute type as number', () => {
+      expect(component.input).to.have.attribute('type', 'number')
+    })
+
+    it.skip('should define float number by comma', () => {
+      expect(component.input).to.have.attribute('punctuation', ',')
+    })
+
+    it.skip('should define float number by dot', () => {
+      expect(component.input).to.have.attribute('punctuation', '.')
+    })
+
+    it.skip('should be a number with up to 2 decimal places', () => {
+      expect(component.input).to.have.attribute('decimal', '2')
+    })
+  })
 })
 
 function loadComponent() {
