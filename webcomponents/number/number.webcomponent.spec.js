@@ -244,6 +244,31 @@ describe('mn-number (webcomponent)', () => {
       expect(component.input).to.not.have.attribute('autofocus')
     })
   })
+
+  describe('attribute min', () => {
+    it('should apply attribute min to label', () => {
+      component.setAttribute('min', '0')
+      expect(component.label).to.have.attribute('min', '0')
+    })
+
+    it('should be invalid if filled with invalid value', () => {
+      component.setAttribute('min', '0')
+      component.setAttribute('required', '')
+      component.value = -10
+      component.validate()
+      expect(component).to.have.class('invalid')
+      expect(component).to.have.class('min')
+    })
+
+    it('should be valid if filled with valid value', () => {
+      component.setAttribute('min', '0')
+      component.setAttribute('required', '')
+      component.value = 1
+      component.validate()
+      expect(component).to.not.have.class('invalid')
+      expect(component).to.not.have.class('min')
+    })
+  })
 })
 
 function loadComponent() {
