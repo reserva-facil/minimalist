@@ -238,6 +238,31 @@ describe('mn-number (webcomponent)', () => {
       expect(component.input).to.not.have.attribute('autofocus')
     })
   })
+
+  describe('attribute max', () => {
+    it('should apply attribute max to label', () => {
+      component.setAttribute('max', '100')
+      expect(component.label).to.have.attribute('max', '100')
+    })
+
+    it('should be invalid if filled with invalid value', () => {
+      component.setAttribute('max', '100')
+      component.setAttribute('required', '')
+      component.value = 101
+      component.validate()
+      expect(component).to.have.class('invalid')
+      expect(component).to.have.class('max')
+    })
+
+    it('should be valid if filled with valid value', () => {
+      component.setAttribute('max', '100')
+      component.setAttribute('required', '')
+      component.value = 100
+      component.validate()
+      expect(component).to.not.have.class('invalid')
+      expect(component).to.not.have.class('max')
+    })
+  })
 })
 
 function loadComponent() {
