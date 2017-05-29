@@ -263,6 +263,13 @@ describe('mn-number (webcomponent)', () => {
       expect(component).to.not.have.class('max')
     })
   })
+
+  describe('attribute step', () => {
+    it('should contain attribute step in child input', () => {
+      component.setAttribute('step','1')
+      expect(component.input).to.have.attribute('step','1')
+    })
+  })
 })
 
 function loadComponent() {
