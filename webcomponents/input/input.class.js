@@ -37,7 +37,7 @@ module.exports = class MnInput extends HTMLElement {
   }
 
   attributeChangedCallback(name, old, value) {
-    if (this.parentNode && this.children.length) {
+    if (this.parentNode && this.label && this.input) {
       this[name] = value
     }
   }
@@ -68,12 +68,15 @@ module.exports = class MnInput extends HTMLElement {
         : this.classList.remove('has-value')
     })
 
-    this.input.addEventListener('keyup', () => { // validate
+    const validate = () => { // validate
       const closestForm = this.closest('form')
       closestForm && closestForm.classList.contains('submitted')
         ? this.validate()
         : null
-    })
+    }
+
+    this.input.addEventListener('keyup', validate)
+    this.input.addEventListener('change', validate)
 
     this.input.addEventListener('focus', () => {
       if (!this.hasAttribute('readonly') && !this.hasAttribute('disabled')) {
@@ -198,7 +201,7 @@ module.exports = class MnInput extends HTMLElement {
   validate() {
     const validations = {}
 
-    for (const attribute of Object.keys(this.validations)) {
+    for (const attribute of Object.keys(this.validations || {})) {
       const hasAttribute = this.hasAttribute(attribute)
       const attributeIsInvalid = this.validations[attribute]()
 

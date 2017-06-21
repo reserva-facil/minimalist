@@ -3,7 +3,14 @@
 @import '../../webcomponents/number/number.style.scss';
 @import '../../webcomponents/date/date.style.scss';
 @import '../../webcomponents/backdrop/backdrop.style.scss';
+@import '../../webcomponents/card/card.style.scss';
+@import '../../webcomponents/action-sheet/action-sheet.style.scss';
+@import '../../webcomponents/select/select.style.scss';
 
+
+body {
+  background-color: $oc-gray-1;
+}
 
 form {
   display: flex;

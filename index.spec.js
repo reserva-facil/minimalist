@@ -35,8 +35,13 @@ describe('minimalist', () => {
     expect(npmModule).to.have.property('date')
   })
 
-  it('should export backdrop component', () => {
+  it('should export select component', () => {
     const npmModule = require('minimalist')
-    expect(npmModule).to.have.property('backdrop')
+    expect(npmModule).to.have.property('select')
+  })
+
+  it('should export actionSheet component', () => {
+    const npmModule = require('minimalist')
+    expect(npmModule).to.have.property('actionSheet')
   })
 })

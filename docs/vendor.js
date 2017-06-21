@@ -63,12 +63,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 0:
+/******/ ([
+/* 0 */
 /***/ (function(module, exports) {
 
 (function(){
@@ -111,8 +110,7 @@ var Z=window.customElements;if(!Z||Z.forcePolyfill||"function"!=typeof Z.define|
 
 
 /***/ }),
-
-/***/ 1:
+/* 1 */
 /***/ (function(module, exports) {
 
 const {HTMLElement} = window
@@ -154,7 +152,7 @@ module.exports = class MnInput extends HTMLElement {
   }
 
   attributeChangedCallback(name, old, value) {
-    if (this.parentNode && this.children.length) {
+    if (this.parentNode && this.label && this.input) {
       this[name] = value
     }
   }
@@ -185,12 +183,15 @@ module.exports = class MnInput extends HTMLElement {
         : this.classList.remove('has-value')
     })
 
-    this.input.addEventListener('keyup', () => { // validate
+    const validate = () => { // validate
       const closestForm = this.closest('form')
       closestForm && closestForm.classList.contains('submitted')
         ? this.validate()
         : null
-    })
+    }
+
+    this.input.addEventListener('keyup', validate)
+    this.input.addEventListener('change', validate)
 
     this.input.addEventListener('focus', () => {
       if (!this.hasAttribute('readonly') && !this.hasAttribute('disabled')) {
@@ -315,7 +316,7 @@ module.exports = class MnInput extends HTMLElement {
   validate() {
     const validations = {}
 
-    for (const attribute of Object.keys(this.validations)) {
+    for (const attribute of Object.keys(this.validations || {})) {
       const hasAttribute = this.hasAttribute(attribute)
       const attributeIsInvalid = this.validations[attribute]()
 
@@ -337,219 +338,181 @@ module.exports = class MnInput extends HTMLElement {
 
 
 /***/ }),
-
-/***/ 10:
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const MnInput = __webpack_require__(1)
+module.exports = MnActionSheetCustomElement()
 
-module.exports = class MnPassword extends MnInput {
-  constructor(self) {
-    self = super(self)
-    return self
-  }
-
-  connectedCallback() {
-    this.innerHTML = ''
-    this._setStyle()
-    this._setInput()
-    super._setPlaceholder()
-    this._setVisibilityButton()
-    super._setAttributeValue()
-    super._setAttributeDisabled()
-    super._setAttributeReadonly()
-    super._setAttributeAutofocus()
-    super._setValidations()
-  }
-
-  static get observedAttributes() {
-    return [
-      'value',
-      'name',
-      'placeholder',
-      'disabled',
-      'readonly',
-      'autofocus',
-    ]
-  }
-
-  _setStyle() {
-    super._setStyle()
-    this.classList.add('mn-password')
-  }
-
-  _setInput() {
-    super._setInput()
-    this.input.setAttribute('type', 'password')
-  }
-
-  _setVisibilityButton() {
-    const button = document.createElement('button')
-    button.setAttribute('type', 'button')
-    button.setAttribute('tabindex', '-1')
-
-    this.appendChild(button)
-    this.button = button
-    this.input.addEventListener('blur', () => {
-      this.input.setAttribute('type', 'password')
-      this.classList.remove('show-password')
-      this.input.dispatchEvent(new Event('change'))
-    })
-
-    button.addEventListener('mousedown', event => {
-      event.preventDefault()
-    })
-
-    button.addEventListener('click', () => {
-      const toggledType = this.input.getAttribute('type') === 'password'
-        ? 'text'
-        : 'password'
-      this.input.setAttribute('type', toggledType)
-      this.classList.toggle('show-password')
-      this.input.focus()
-    })
-  }
-}
-
-
-/***/ }),
-
-/***/ 11:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = MnPasswordCustomElement()
-
-function MnPasswordCustomElement() {
+function MnActionSheetCustomElement() {
   const supportsCustomElements = 'customElements' in window
 
   if (!supportsCustomElements) {
     __webpack_require__(0)
   }
 
-  const MnPassword = __webpack_require__(10)
-  window.customElements.define('mn-password', MnPassword)
-  return window.customElements.get('mn-password')
+  const MnActionSheet = __webpack_require__(6)
+  window.customElements.define('mn-action-sheet', MnActionSheet)
+  return window.customElements.get('mn-action-sheet')
 }
 
 
 /***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
 
-/***/ 131:
+module.exports = __webpack_require__(5);
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const {input, password, number, backdrop, actionSheet} = __webpack_require__(3)
+
+const form = document.querySelector('form')
+
+form.addEventListener('submit', event => {
+  event.preventDefault()
+  form.classList.add('submitted')
+  Array
+    .from(form.querySelectorAll('.mn-input'))
+    // :not([disabled]):not([readonly]'
+    .filter(input => !input.disabled && !input.readOnly)
+    .forEach(input => input.validate())
+
+  const isInvalid = form.querySelectorAll('.mn-input.invalid').length > 0
+  console.log(`form ${isInvalid ? 'invalid' : 'valid'}`)
+})
+
+
+// const layer = document.querySelector('mn-backdrop')
+
+// const button = document.querySelector('button')
+// button.addEventListener('click', () => {
+//   layer.show()
+// })
+
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = {
+  input: __webpack_require__(11),
+  password: __webpack_require__(15),
+  number: __webpack_require__(13),
+  date: __webpack_require__(8),
+  select: __webpack_require__(17),
+  actionSheet: __webpack_require__(2),
+}
+
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports) {
 
 const {HTMLElement} = window
 
-class MnBackdrop extends HTMLElement {
+module.exports = class MnActionSheet extends HTMLElement {
   constructor() {
     self = super(self)
     return self
   }
 
   connectedCallback() {
-    this.innerHTML = ''
-    this.classList.add('mn-backdrop')
+    this._setStyle()
+    this._setMenu()
+    this._setCancel()
+  }
 
-    document.addEventListener('keyup', () => {
-      const esc = event.key === 'Escape'
+  static get observedAttributes() {
+    return []
+  }
 
-      if (esc && this.visible) {
-        this.hide()
+  attributeChangedCallback(name, old, value) {
+    if (this.parentNode) {
+      this[name] = value
+    }
+  }
+
+  _setStyle() {
+    this.classList.add('mn-action-sheet')
+    document.body.classList.add('mn-backdrop')
+  }
+
+  _setMenu() {
+    const menu = document.createElement('menu')
+    menu.classList.add('mn-card')
+
+    Array
+      .from(this.querySelectorAll('option'))
+      .forEach((child, index) => {
+        const option = document.createElement('div')
+        option.classList.add('option')
+        option.innerHTML = child.textContent
+
+        option.addEventListener('click', () => {
+          const changeEvent = new Event('change')
+          changeEvent.data = {index}
+          this.dispatchEvent(changeEvent)
+        })
+
+        Array
+          .from(child.attributes)
+          .forEach(attr => option.setAttribute(attr.name, attr.value))
+
+        child.parentNode.removeChild(child)
+        menu.appendChild(option)
+      })
+
+    this.appendChild(menu)
+    this.menu = menu
+  }
+
+  _setCancel() {
+    const button = document.createElement('button')
+
+    button.addEventListener('click', () => {
+      this.hide()
+    })
+
+    document.addEventListener('touchmove', () => {
+      const clickOutside = event.target === this
+      this.touchmove = true
+      if (clickOutside) {
+        event.preventDefault()
       }
     })
+
+    document.addEventListener('touchend', (event) => {
+      const clickOutside = event.target === this && !this.touchmove
+      if (clickOutside) {
+        this.hide()
+      }
+      delete this.touchmove
+    })
+
+    this.button = button
+    this.appendChild(this.button)
   }
 
   show() {
+    this.menu.scrollTop = 0
     this.classList.add('visible')
+    document.body.classList.add('mn-backdrop-visible')
+    document.body.classList.add('mn-action-sheet-visible')
   }
 
   hide() {
     this.classList.remove('visible')
-  }
-
-  get visible() {
-    return this.classList.contains('visible')
+    document.body.classList.remove('mn-backdrop-visible')
+    document.body.classList.remove('mn-action-sheet-visible')
   }
 }
 
-module.exports = MnBackdrop
-
 
 /***/ }),
-
-/***/ 132:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = MnBackdropCustomElement()
-
-function MnBackdropCustomElement() {
-  const supportsCustomElements = 'customElements' in window
-
-  if (!supportsCustomElements) {
-    __webpack_require__(0)
-  }
-
-  const MnBackdrop = __webpack_require__(131)
-  window.customElements.define('mn-backdrop', MnBackdrop)
-  return window.customElements.get('mn-backdrop')
-}
-
-
-/***/ }),
-
-/***/ 2:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(4);
-
-/***/ }),
-
-/***/ 3:
-/***/ (function(module, exports, __webpack_require__) {
-
-const {input, password, number, backdrop} = __webpack_require__(2)
-
-const form = document.querySelector('form')
-
-form.addEventListener('submit', event => {
-  form.classList.add('submitted')
-  const inputs = form.querySelectorAll('.mn-input:not([disabled]):not([readonly]')
-
-  Array
-    .from(inputs)
-    .forEach(element => element.validate())
-
-  const isInvalid = form.querySelectorAll('.mn-input.invalid').length > 0
-  console.log(`form isInvalid: ${isInvalid}`)
-  event.preventDefault()
-})
-
-
-const layer = document.querySelector('mn-backdrop')
-
-const button = document.querySelector('button')
-button.addEventListener('click', () => {
-  layer.show()
-})
-
-
-
-/***/ }),
-
-/***/ 4:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = {
-  input: __webpack_require__(7),
-  password: __webpack_require__(11),
-  number: __webpack_require__(9),
-  date: __webpack_require__(6),
-  backdrop: __webpack_require__(132),
-}
-
-
-/***/ }),
-
-/***/ 5:
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const MnInput = __webpack_require__(1)
@@ -731,8 +694,7 @@ function newDate(dateString) {
 
 
 /***/ }),
-
-/***/ 6:
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnDateCustomElement()
@@ -744,15 +706,16 @@ function MnDateCustomElement() {
     __webpack_require__(0)
   }
 
-  const MnDate = __webpack_require__(5)
+  const MnDate = __webpack_require__(7)
   window.customElements.define('mn-date', MnDate)
   return window.customElements.get('mn-date')
 }
 
 
 /***/ }),
-
-/***/ 7:
+/* 9 */,
+/* 10 */,
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnInputCustomElement()
@@ -771,8 +734,7 @@ function MnInputCustomElement() {
 
 
 /***/ }),
-
-/***/ 8:
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const MnInput = __webpack_require__(1)
@@ -980,8 +942,7 @@ module.exports = class MnNumber extends MnInput {
 
 
 /***/ }),
-
-/***/ 9:
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnNumberCustomElement()
@@ -993,13 +954,487 @@ function MnNumberCustomElement() {
     __webpack_require__(0)
   }
 
-  const MnNumber = __webpack_require__(8)
+  const MnNumber = __webpack_require__(12)
   window.customElements.define('mn-number', MnNumber)
   return window.customElements.get('mn-number')
 }
 
 
-/***/ })
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
 
-/******/ });
+const MnInput = __webpack_require__(1)
+
+module.exports = class MnPassword extends MnInput {
+  constructor(self) {
+    self = super(self)
+    return self
+  }
+
+  connectedCallback() {
+    this.innerHTML = ''
+    this._setStyle()
+    this._setInput()
+    super._setPlaceholder()
+    this._setVisibilityButton()
+    super._setAttributeValue()
+    super._setAttributeDisabled()
+    super._setAttributeReadonly()
+    super._setAttributeAutofocus()
+    super._setValidations()
+  }
+
+  static get observedAttributes() {
+    return [
+      'value',
+      'name',
+      'placeholder',
+      'disabled',
+      'readonly',
+      'autofocus',
+    ]
+  }
+
+  _setStyle() {
+    super._setStyle()
+    this.classList.add('mn-password')
+  }
+
+  _setInput() {
+    super._setInput()
+    this.input.setAttribute('type', 'password')
+  }
+
+  _setVisibilityButton() {
+    const button = document.createElement('button')
+    button.setAttribute('type', 'button')
+    button.setAttribute('tabindex', '-1')
+
+    this.appendChild(button)
+    this.button = button
+    this.input.addEventListener('blur', () => {
+      this.input.setAttribute('type', 'password')
+      this.classList.remove('show-password')
+      this.input.dispatchEvent(new Event('change'))
+    })
+
+    button.addEventListener('mousedown', event => {
+      event.preventDefault()
+    })
+
+    button.addEventListener('click', () => {
+      const toggledType = this.input.getAttribute('type') === 'password'
+        ? 'text'
+        : 'password'
+      this.input.setAttribute('type', toggledType)
+      this.classList.toggle('show-password')
+      this.input.focus()
+    })
+  }
+}
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = MnPasswordCustomElement()
+
+function MnPasswordCustomElement() {
+  const supportsCustomElements = 'customElements' in window
+
+  if (!supportsCustomElements) {
+    __webpack_require__(0)
+  }
+
+  const MnPassword = __webpack_require__(14)
+  window.customElements.define('mn-password', MnPassword)
+  return window.customElements.get('mn-password')
+}
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const MnInput = __webpack_require__(1)
+const MnActionSheet = __webpack_require__(2)
+
+module.exports = class MnSelect extends MnInput {
+  constructor(self) {
+    self = super(self)
+    return self
+  }
+
+  connectedCallback() {
+    this._setStyle()
+    this._setInput()
+    super._setPlaceholder()
+    this._setMenu()
+    this._setActionSheet()
+    this._setOptions()
+    this._setAttributeValue()
+    super._setAttributeDisabled()
+    super._setAttributeReadonly()
+    super._setAttributeAutofocus()
+    super._setAttributeAutocomplete()
+    super._setAttributeSpellcheck()
+    this._setValidations()
+  }
+
+  static get observedAttributes() {
+    return [
+      'value',
+      'name',
+      'placeholder',
+      'disabled',
+      'readonly',
+      'autofocus',
+    ]
+  }
+
+  _setStyle() {
+    super._setStyle()
+    this.classList.add('mn-select')
+  }
+
+  _setInput() {
+    super._setInput()
+
+    this.input.addEventListener('focus', () => {
+      this.input.select()
+      !this.input.hasAttribute('readonly')
+        ? this.show()
+        : undefined
+      this.filter = undefined
+    })
+
+    this.input.addEventListener('blur', () => {
+      const option = Array
+        .from(this.menu.querySelectorAll('.option'))
+        .filter(option => {
+          const optionValue = option.getAttribute('value') || option.textContent
+          return optionValue === this.getAttribute('value')
+        })[0]
+
+      if (this.input.value && option) {
+        this.input.value = option.textContent
+      } else {
+        this.value = undefined
+      }
+      this.hide()
+    })
+
+    this.input.addEventListener('input', () => {
+      this.filter = this.input.value
+      this.focusOption(this.menu.querySelector('.option:not(.hidden)'))
+    })
+
+    document.addEventListener('click', event => {
+      const clickOutside = !event.target.closest('mn-select') && event.target !== this
+
+      if (this.visible && clickOutside) {
+        this.hide()
+      }
+    })
+  }
+
+  _setAttributeValue() {
+    const selectedOption = this.querySelector('.option[selected]')
+    const selectedValue = selectedOption
+      ? selectedOption.getAttribute('value') || selectedOption.textContent
+      : ''
+
+    const value = this.getAttribute('value') || selectedValue
+    this.value = value
+  }
+
+  _setMenu() {
+    const menu = document.createElement('menu')
+    menu.classList.add('mn-card')
+
+    Array
+      .from(this.querySelectorAll('option'))
+      .forEach(child => {
+        const option = document.createElement('div')
+        option.classList.add('option')
+        option.innerHTML = child
+          .textContent
+          .split('')
+          .map(char => `<span class="char" data-char="${char.toLowerCase()}">${char}</span>`)
+          .join('')
+
+        Array
+          .from(child.attributes)
+          .forEach(attr => option.setAttribute(attr.name, attr.value))
+
+        child.parentNode.removeChild(child)
+        menu.appendChild(option)
+      })
+
+    this.appendChild(menu)
+    this.menu = menu
+  }
+
+  _setActionSheet() {
+    const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    if (viewportWidth < 768) {
+      const actionSheet = new MnActionSheet()
+      Array
+        .from(this.querySelectorAll('.option'))
+        .forEach(option => {
+          const actionSheetOption = document.createElement('option')
+          actionSheetOption.textContent = option.textContent
+          actionSheet.appendChild(actionSheetOption)
+        })
+      this.actionSheet = actionSheet
+      this.actionSheet.addEventListener('change', (event) => {
+        const {index} = event.data
+        const option = this.menu.querySelector(`.option:nth-child(${index + 1})`)
+        this.value = option.textContent
+        this.actionSheet.hide()
+      })
+      document.body.appendChild(this.actionSheet)
+    }
+  }
+
+  _setOptions() {
+    const options = Array.from(this.querySelectorAll('.option'))
+
+    options.forEach(option => option.addEventListener('mousedown', () => {
+      const value = event.target.getAttribute('value') || event.target.textContent
+      this.value = value
+      this.hide()
+    }))
+
+    options.forEach(option => option.addEventListener('mousemove', () => {
+      if (!this.keyboardNavigation) {
+        this.focusOption(option)
+      }
+    }))
+
+    this.input.addEventListener('keydown', (event) => { // arrow navigate
+      const arrowDown = event.key === 'ArrowDown'
+      const arrowUp = event.key === 'ArrowUp'
+      let nextOption
+
+      const options = Array.from(this.menu.querySelectorAll('.option:not(.hidden)'))
+      const currentOption = this.menu.querySelector('.option.focus')
+
+      const currentIndex = Array.prototype.indexOf.call(options, currentOption)
+
+      if (arrowDown) {
+        event.preventDefault()
+        nextOption = options[currentIndex + 1]
+      } else if (arrowUp) {
+        event.preventDefault()
+        nextOption = options[currentIndex - 1]
+      }
+
+      if (nextOption) {
+        const top = nextOption.offsetTop
+        const bottom = top + nextOption.clientHeight
+        const scrollToTop = top < this.menu.scrollTop
+        const scrollToBottom = bottom > this.menu.scrollTop + this.menu.clientHeight
+
+        this.keyboardNavigation = true
+        if (scrollToTop) {
+          this.menu.scrollTop = top
+        } else if (scrollToBottom) {
+          this.menu.scrollTop = bottom - this.menu.clientHeight
+        }
+
+        this.focusOption(nextOption)
+        setTimeout(() => {
+          delete this.keyboardNavigation
+        }, 100)
+      }
+    })
+
+    this.input.addEventListener('keydown', event => {
+      const esc = event.key === 'Escape'
+
+      if (esc) {
+        this.value = this.value
+        this.input.select()
+        this.filter = undefined
+      }
+    })
+
+    this.input.addEventListener('keydown', (event) => {
+      const enter = event.key === 'Enter'
+
+      if (enter) {
+        const option = this.menu.querySelector('.option.focus')
+        event.preventDefault()
+
+        option
+          ? this.value = option.getAttribute('value') || option.textContent
+          : this.value = this.value
+
+        this.hide()
+        this.input.blur()
+      }
+    })
+  }
+
+  _setValidations() {
+    super._setValidations()
+    this.validations.required = () => this.value === undefined,
+    delete this.validations.pattern
+  }
+
+  show() {
+    this.classList.add('visible')
+    this.menu.scrollTop = 0
+    this.focusOption(this.querySelector('.option:first-child'))
+
+    if (this.actionSheet) {
+      this.input.blur()
+      this.actionSheet.show()
+    }
+  }
+
+  hide() {
+    this.classList.remove('visible')
+    this.removeOptionFocus()
+  }
+
+  get visible() {
+    return this.classList.contains('visible')
+  }
+
+  removeOptionFocus() {
+    const latest = this.menu.querySelector('.focus')
+    latest
+      ? latest.classList.remove('focus')
+      : undefined
+  }
+
+  focusOption(option) {
+    this.removeOptionFocus()
+    option
+      ? option.classList.add('focus')
+      : null
+  }
+
+  get value() {
+    return this.getAttribute('value')
+      ? evaluate(this.getAttribute('value'))
+      : undefined
+  }
+
+  set value(value) {
+    const differentValue = this.getAttribute('value') !== value
+    const option = Array
+      .from(this.menu.querySelectorAll('.option'))
+      .filter(option => {
+        return option.getAttribute('value') == String(value) // eslint-disable-line eqeqeq
+          || option.textContent == String(value) // eslint-disable-line eqeqeq
+      })[0]
+
+    const textNotApplied = option && this.input.value !== option.textContent
+
+    if (differentValue || textNotApplied) {
+      this.input.value = option
+        ? option.textContent
+        : ''
+
+      const hasValue = value !== undefined && value !== null
+
+      hasValue && option
+        ? this.setAttribute('value', option.getAttribute('value') || option.textContent)
+        :  this.removeAttribute('value')
+
+      this.input.dispatchEvent(new Event('change'))
+    }
+
+    if (!this.hasAttribute('value')) {
+      this.input.value = ''
+      this.input.dispatchEvent(new Event('change'))
+    }
+  }
+
+  set filter(value) {
+    if (value) {
+      this.classList.add('filtered')
+
+      Array
+        .from(this.menu.querySelectorAll('.option'))
+        .forEach(option => {
+          const matchOption = RegExp(value.split('').join('.*'), 'i').test(option.textContent)
+
+          Array
+            .from(option.querySelectorAll('.match'))
+            .forEach(char => char.classList.remove('match'))
+
+          if (matchOption) {
+            option.classList.remove('hidden')
+
+            value
+              .split('')
+              .forEach(char => {
+                const selector = `span[data-char="${char.toLowerCase()}"]:not(.match)`
+                const letter = option.querySelector(`.match ~ ${selector}`) || option.querySelector(selector)
+                letter
+                  ? letter.classList.add('match')
+                  : null
+              })
+
+          } else {
+            option.classList.add('hidden')
+          }
+        })
+    } else {
+      this.classList.remove('filtered')
+      Array
+        .from(this.querySelectorAll('.option.hidden'))
+        .forEach(option => option.classList.remove('hidden'))
+    }
+  }
+}
+
+function evaluate(value) {
+  try {
+    value = value.trim()
+    const isVariable = !value.startsWith('[')
+      && !value.startsWith('{')
+      && !value.startsWith('\'')
+      && !value.startsWith('"')
+      && !value.startsWith('`')
+      && value !== 'true'
+      && value !== 'false'
+      && isNaN(value)
+
+    return isVariable
+        ? eval(`'${value}'`) // convert to string
+        : eval(`(${value})`) // evaluate
+  } catch (e) {
+    return value
+  }
+}
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = MnSelectCustomElement()
+
+function MnSelectCustomElement() {
+  const supportsCustomElements = 'customElements' in window
+
+  if (!supportsCustomElements) {
+    __webpack_require__(0)
+  }
+
+  const MnSelect = __webpack_require__(16)
+  window.customElements.define('mn-select', MnSelect)
+  return window.customElements.get('mn-select')
+}
+
+
+/***/ })
+/******/ ]);
 //# sourceMappingURL=vendor.js.map

@@ -58,6 +58,59 @@ describe('mn-date (webcomponent)', () => {
     })
   })
 
+  describe('property value', () => {
+    it('should be undefined by default', () => {
+      expect(component).to.have.value(undefined)
+    })
+
+    it('should be undefined when set a string', () => {
+      date.setProperty('value', 'teste')
+      expect(component).to.have.value(undefined)
+    })
+
+    it('should be undefined when set numbers', () => {
+      date.setProperty('value', 123)
+      expect(component).to.have.value(undefined)
+    })
+
+    it('should be undefined when set a string number', () => {
+      date.setProperty('value', '123')
+      expect(component).to.have.value(undefined)
+    })
+
+    it('should be undefined when set a empty string', () => {
+      date.setProperty('value', '')
+      expect(component).to.have.value(undefined)
+    })
+
+    it('should be a DateISOString when set a string in yyyy-mm-dd pattern', () => {
+      date.setProperty('value', '2017-04-30')
+      expect(component).to.have.value(`2017-04-30T0${timezone}:00:00.000Z`)
+    })
+
+    it('should be a DateISOString at midnight when set a date object with hours', () => {
+      date.setProperty('value', new Date(2017, 3, 30, 18, 0))
+      expect(component).to.have.value(`2017-04-30T0${timezone}:00:00.000Z`)
+    })
+
+    it('should be a DateISOString at midnight when set a date object without hours', () => {
+      date.setProperty('value', new Date(2017, 3, 30))
+      expect(component).to.have.value(`2017-04-30T0${timezone}:00:00.000Z`)
+    })
+  })
+
+  describe('attribute value', () => {
+    it('should set property value when attribute changed', () => {
+      date.setAttribute('value', '2017-04-30')
+      expect(component).to.have.value(`2017-04-30T0${timezone}:00:00.000Z`)
+    })
+
+    it('should set property value when attribute is removed', () => {
+      date.removeAttribute('value')
+      expect(component).to.have.value(undefined)
+    })
+  })
+
   describe('attribute name', () => {
     it('should define a form getter if parent form exist and has an id', () => {
       date.setAttribute('name', 'test')
@@ -166,59 +219,6 @@ describe('mn-date (webcomponent)', () => {
     })
   })
 
-  describe('attribute value', () => {
-    it('should set property value when attribute changed', () => {
-      date.setAttribute('value', '2017-04-30')
-      expect(component).to.have.value(`2017-04-30T0${timezone}:00:00.000Z`)
-    })
-
-    it('should set property value when attribute is removed', () => {
-      date.removeAttribute('value')
-      expect(component).to.have.value(undefined)
-    })
-  })
-
-  describe('property value', () => {
-    it('should be undefined by default', () => {
-      expect(component).to.have.value(undefined)
-    })
-
-    it('should be undefined when set a string', () => {
-      date.setProperty('value', 'teste')
-      expect(component).to.have.value(undefined)
-    })
-
-    it('should be undefined when set numbers', () => {
-      date.setProperty('value', 123)
-      expect(component).to.have.value(undefined)
-    })
-
-    it('should be undefined when set a string number', () => {
-      date.setProperty('value', '123')
-      expect(component).to.have.value(undefined)
-    })
-
-    it('should be undefined when set a empty string', () => {
-      date.setProperty('value', '')
-      expect(component).to.have.value(undefined)
-    })
-
-    it('should be a DateISOString when set a string in yyyy-mm-dd pattern', () => {
-      date.setProperty('value', '2017-04-30')
-      expect(component).to.have.value(`2017-04-30T0${timezone}:00:00.000Z`)
-    })
-
-    it('should be a DateISOString at midnight when set a date object with hours', () => {
-      date.setProperty('value', new Date(2017, 3, 30, 18, 0))
-      expect(component).to.have.value(`2017-04-30T0${timezone}:00:00.000Z`)
-    })
-
-    it('should be a DateISOString at midnight when set a date object without hours', () => {
-      date.setProperty('value', new Date(2017, 3, 30))
-      expect(component).to.have.value(`2017-04-30T0${timezone}:00:00.000Z`)
-    })
-  })
-
   describe('method validate()', () => {
     it('should be called on event keyup, if have a parent form.submitted', () => {
       component.closest('form').classList.add('submitted')
@@ -230,6 +230,19 @@ describe('mn-date (webcomponent)', () => {
     it('should not called on event keyup, if not have a parent form.submitted', () => {
       const validate = spy.on(component, 'validate')
       component.input.dispatchEvent(new Event('keyup'))
+      expect(validate).to.not.have.been.called
+    })
+
+    it('should be called on event change, if have a parent form.submitted', () => {
+      component.closest('form').classList.add('submitted')
+      const validate = spy.on(component, 'validate')
+      component.input.dispatchEvent(new Event('change'))
+      expect(validate).to.have.been.called()
+    })
+
+    it('should not called on event change, if not have a parent form.submitted', () => {
+      const validate = spy.on(component, 'validate')
+      component.input.dispatchEvent(new Event('change'))
       expect(validate).to.not.have.been.called
     })
   })
@@ -244,7 +257,7 @@ describe('mn-date (webcomponent)', () => {
 
     it('should be valid if setted a valid value', () => {
       date.setAttribute('required')
-      date.writeText('2010-01-01')
+      date.setProperty('value', '2010-01-01')
       component.validate()
       expect(component).to.not.have.class('invalid')
       expect(component).to.not.have.class('required')
@@ -252,7 +265,7 @@ describe('mn-date (webcomponent)', () => {
 
     it('should be valid if typed a valid value', () => {
       date.setAttribute('required')
-      date.writeText('2010-01-01')
+      date.setProperty('value', '2010-01-01')
       component.validate()
       expect(component).to.not.have.class('invalid')
       expect(component).to.not.have.class('required')
@@ -278,7 +291,7 @@ describe('mn-date (webcomponent)', () => {
 
     it('should be invalid if filled an invalid value', () => {
       date.setAttribute('min', '2010-10-05')
-      date.writeText('2010-10-04')
+      date.setProperty('value', '2010-10-04')
       component.validate()
       expect(component).to.have.class('invalid')
       expect(component).to.have.class('min')
@@ -296,7 +309,7 @@ describe('mn-date (webcomponent)', () => {
 
     it('should be invalid if filled with invalid value', () => {
       date.setAttribute('max', '2017-05-06')
-      date.writeText('2017-05-07')
+      date.setProperty('value', '2017-05-07')
       component.validate()
       expect(component).to.have.class('invalid')
       expect(component).to.have.class('max')
@@ -323,8 +336,8 @@ function createComponent() {
 
   component = document.createElement('mn-date')
 
-  form.appendChild(component)
   document.body.appendChild(form)
+  form.appendChild(component)
 }
 
 function setPageObject() {
