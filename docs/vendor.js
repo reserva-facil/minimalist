@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -352,6 +352,40 @@ module.exports = class MnInput extends HTMLElement {
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports) {
+
+// const string = evaluateString('string')
+// const number = evaluateString('5')
+// const booleanFalse = evaluateString('false')
+// const booleanTrue = evaluateString('true')
+// const array = evaluateString('[1, 2]')
+// const object = evaluateString(`{id: 1, name: 'snow'}`)
+// const json = evaluateString('{"id": 1, "name": "snow"}')
+
+module.exports = evaluateString
+
+function evaluateString(value) {
+  try {
+    value = value.trim()
+    const isVariable = !value.startsWith('[')
+      && !value.startsWith('{')
+      && !value.startsWith('\'')
+      && !value.startsWith('"')
+      && !value.startsWith('`')
+      && value !== 'true'
+      && value !== 'false'
+      && isNaN(value)
+
+    return isVariable
+        ? eval(`'${value}'`) // convert to string
+        : eval(`(${value})`) // evaluate
+  } catch (e) {
+    return value
+  }
+}
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnActionSheetCustomElement()
@@ -364,7 +398,7 @@ function MnActionSheetCustomElement() {
   }
 
   if (!window.customElements.get('mn-action-sheet')) {
-    window.customElements.define('mn-action-sheet', __webpack_require__(6))
+    window.customElements.define('mn-action-sheet', __webpack_require__(10))
   }
 
   return window.customElements.get('mn-action-sheet')
@@ -372,80 +406,364 @@ function MnActionSheetCustomElement() {
 
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(5);
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(3)
+const {HTMLElement} = window
+const evaluate = __webpack_require__(2)
 
-// const angular = require('angular')
+module.exports = class MnCheckbox extends HTMLElement {
+  constructor(self) {
+    self = super(self)
+    this.ready = false
+    return self
+  }
 
-// require('../../angular.js')
-// angular
-//   .module('app', ['minimalist'])
-//   .controller('HomeController', HomeController)
+  connectedCallback() {
+    this.innerHTML = ''
+    this._setStyle()
+    this._setLabel()
+    this._setInput()
+    this._setCustomInput()
+    this._setForm()
+    this.checked = this.hasAttribute('checked')
+    this.disabled = this.hasAttribute('disabled')
+    this.readonly = this.hasAttribute('readonly')
+    this.name = this.hasAttribute('name')
+    this._setValidations()
+  }
 
+  static get observedAttributes() {
+    return [
+      'value',
+      'name',
+      'disabled',
+      'readonly',
+      'autofocus',
+    ]
+  }
 
-// function HomeController() {
-//   this.username = 'darlanmendonca'
-//   this.email = 'darlanmendonca@gmail.com'
-//   this.password = '123123123'
-//   this.date = new Date() //'1990-09-04T03:00:00.000Z'
-//   this.number = 10
-//   this.precision = 10
-//   this.currency = 10
-//   this.percentage = 1
+  attributeChangedCallback(name, old, value) {
+    if (this.parentNode && this.input && this.ready) {
+      this[name] = value || this.hasAttribute(name)
+    }
+  }
 
-//   this.options = [
-//     'Stark',
-//     'Lannister',
-//     'Targaryen',
-//     'Tyrell',
-//     'Martell',
-//   ]
+  _setStyle() {
+    this.classList.add('mn-checkbox')
+    this.classList.add('mn-option')
+  }
 
-//   this.house = 'Stark'
+  _setLabel() {
+    this.label = document.createElement('label')
+    this.appendChild(this.label)
 
-//   this.submit = (data) => {
-//     const form = document.querySelector('mn-form')
-//     console.log('angular submit now', form.data)
-//   }
+    this.label.addEventListener('mouseleave', () => {
+      this.input.blur()
+    })
 
-//   this.remove = () => {
-//     this.options.pop()
-//   }
+    document.addEventListener('click', event => {
+      const isLabel = event.target.tagName === 'LABEL'
+        && event.target.getAttribute('for') === this.id
 
-//   this.add = () => {
-//     const random = parseInt(Math.random() * 10000)
-//     this.options.push(`option ${random}`)
-//   }
-// }
+      if (isLabel && this.id) {
+        this.input.checked = !this.input.checked
+        this.input.dispatchEvent(new Event('change'))
+      }
+    })
+  }
+
+  _setInput() {
+    this.input = document.createElement('input')
+    this.input.setAttribute('type', 'checkbox')
+    this.label.appendChild(this.input)
+
+    this.addEventListener('click', () => {
+      setTimeout(() => {
+        this.input.blur()
+      }, 0)
+    })
+
+    this.input.addEventListener('change', () => {
+      this.checked
+        ? this.setAttribute('checked', '')
+        : this.removeAttribute('checked')
+
+      this.form && this.form.classList && this.form.classList.contains('submitted')
+        ? this.validate()
+        : null
+    })
+  }
+
+  _setCustomInput() {
+    const input = document.createElement('div')
+    input.classList.add('input')
+
+    const vector = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    vector.innerHTML = `
+      <g
+        stroke="none"
+        stroke-width="1"
+        fill="none"
+        fill-rule="evenodd"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+          <g
+            x="50%" y="50%"
+            transform="translate(5, 5)"
+            stroke-width="2">
+              <polyline
+                points="12.3825 0.581533333 3.653 10.3935333 0.273722222 6.7386"></polyline>
+          </g>
+      </g>
+    `
+    input.appendChild(vector)
+    this.label.appendChild(input)
+  }
+
+  _setForm() {
+    this.form = this.closest('form') || this.closest('mn-form') || document
+  }
+
+  _setValidations() {
+    this.validations = {
+      required: () => {
+        return Array.isArray(this.value)
+          ? !this.value.some(value =>
+            value === evaluate(this.getAttribute('value')) || value === this.getAttribute('placeholder')
+          )
+          : !this.value
+      },
+    }
+  }
+
+  get checked() {
+    return this.input.checked
+  }
+
+  set checked(value) {
+    this.input.checked = value
+    this.input.dispatchEvent(new Event('change'))
+  }
+
+  set disabled(value) {
+    this.input.disabled = value
+  }
+
+  set readonly(value) {
+    this.input.readOnly = value
+  }
+
+  set name(value) {
+    const name = this.getAttribute('name')
+
+    if (name) {
+      const element = this
+      this.input.setAttribute('name', name)
+
+      if (this.form && !this.form[name]) {
+        Object.defineProperty(this.form, name, {
+          get: () => {
+            return element.getAttribute('name')
+              ? element
+              : undefined
+          },
+        })
+      }
+    }
+  }
+
+  get value() {
+    const values = this
+      .options
+      .filter(option => option.checked)
+      .map(option => !option.hasAttribute('value') && !option.hasAttribute('placeholder')
+        ? this.checked
+        : option.hasAttribute('value')
+          ? evaluate(option.getAttribute('value'))
+          : option.getAttribute('placeholder')
+      )
+
+    const isSingleOption = this.options.length === 1
+    const isBoolean = typeof evaluate(this.options[0].getAttribute('value')) === 'boolean'
+      || !this.options[0].hasAttribute('value') && !this.options[0].hasAttribute('placeholder')
+
+    return isSingleOption && isBoolean
+      ? Boolean(values[0])
+      : values
+  }
+
+  set value(value) {
+    const values = Array.isArray(value)
+      ? value
+      : [value]
+
+    this.options
+    .forEach(option => {
+      const check = values.some(value => value === option.getAttribute('value'))
+      check
+        ? option.setAttribute('checked', '')
+        : option.removeAttribute('checked')
+      option.checked = check
+    })
+  }
+
+  get options() {
+    const name = this.getAttribute('name')
+      ? `[name="${this.getAttribute('name')}"]`
+      : ':not([name])'
+
+    return Array.from(this.form.querySelectorAll(`.mn-checkbox${name}`))
+  }
+
+  validate() {
+    const validations = {}
+
+    for (const attribute of Object.keys(this.validations || {})) {
+      const hasAttribute = this.hasAttribute(attribute)
+      const attributeIsInvalid = this.validations[attribute]()
+
+      if (hasAttribute && attributeIsInvalid) {
+        this.classList.add(attribute)
+        validations[attribute] = true
+      } else {
+        this.classList.remove(attribute)
+      }
+    }
+
+    const isInvalid = Object.values(validations).some(item => item === true)
+
+    isInvalid
+      ? this.classList.add('invalid')
+      : this.classList.remove('invalid')
+  }
+}
 
 
 /***/ }),
 /* 5 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-module.exports = {
-  input: __webpack_require__(13),
-  email: __webpack_require__(10),
-  password: __webpack_require__(17),
-  number: __webpack_require__(15),
-  date: __webpack_require__(8),
-  select: __webpack_require__(19),
-  actionSheet: __webpack_require__(2),
-  form: __webpack_require__(12),
-  sidenav: __webpack_require__(21),
+/* global angular */
+
+angular
+  .module('minimalist')
+  .directive('mnCheckbox', MnCheckboxDirective)
+
+module.exports = MnCheckboxDirective
+
+function MnCheckboxDirective() {
+  return {
+    restrict: 'C',
+    require: 'ngModel',
+    link(scope, element, attributes, ngModel) {
+      const component = element[0]
+      const input = component.input
+
+      if (!attributes.name) {
+        const name = attributes.ngModel.split('.')[attributes.ngModel.split('.').length - 1]
+        component.setAttribute('name', name)
+      }
+
+      ngModel.$validators = {}
+      input.addEventListener('change', setViewValue)
+
+      element.ready(() => {
+        component.ready = true
+        component.value = ngModel.$modelValue
+        ngModel.$setViewValue(component.value)
+        // scope.$watch(attributes.ngModel, setComponentValue)
+      })
+
+      scope.$on('$destroy', () => {
+        element.remove()
+      })
+
+      // function setComponentValue(value) {
+      //   component.value = value
+      // }
+
+      function setViewValue() {
+        ngModel.$setViewValue(component.value)
+      }
+    }
+  }
 }
 
 
 /***/ }),
 /* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* global angular */
+
+angular.module('minimalist', [])
+
+module.exports = {
+  input: __webpack_require__(19),
+  select: __webpack_require__(29),
+  form: __webpack_require__(17),
+  checkbox: __webpack_require__(5),
+  radio: __webpack_require__(26),
+}
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(9);
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(7)
+
+// const angular = require('angular')
+__webpack_require__(6)
+angular
+  .module('app', ['minimalist'])
+  .controller('HomeController', HomeController)
+
+
+function HomeController() {
+  this.houses = [
+    'Stark',
+    'Lannister',
+    'Targaryen'
+  ]
+  this.house = ['stark']
+
+  this.genders = [
+    'male',
+    'female',
+  ]
+  this.gender = 'male'
+}
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = {
+  input: __webpack_require__(20),
+  email: __webpack_require__(15),
+  password: __webpack_require__(24),
+  number: __webpack_require__(22),
+  date: __webpack_require__(13),
+  select: __webpack_require__(30),
+  actionSheet: __webpack_require__(3),
+  form: __webpack_require__(18),
+  sidenav: __webpack_require__(32),
+  checkbox: __webpack_require__(11),
+  radio: __webpack_require__(27),
+}
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports) {
 
 const {HTMLElement} = window
@@ -554,7 +872,28 @@ module.exports = class MnActionSheet extends HTMLElement {
 
 
 /***/ }),
-/* 7 */
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = MnCheckboxCustomElement()
+
+function MnCheckboxCustomElement() {
+  const supportsCustomElements = 'customElements' in window
+
+  if (!supportsCustomElements) {
+    __webpack_require__(0)
+  }
+
+  if (!window.customElements.get('mn-checkbox')) {
+    window.customElements.define('mn-checkbox', __webpack_require__(4))
+  }
+
+  return window.customElements.get('mn-checkbox')
+}
+
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const MnInput = __webpack_require__(1)
@@ -736,7 +1075,7 @@ function newDate(dateString) {
 
 
 /***/ }),
-/* 8 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnDateCustomElement()
@@ -749,7 +1088,7 @@ function MnDateCustomElement() {
   }
 
   if (!window.customElements.get('mn-date')) {
-    window.customElements.define('mn-date', __webpack_require__(7))
+    window.customElements.define('mn-date', __webpack_require__(12))
   }
 
   return window.customElements.get('mn-date')
@@ -757,7 +1096,7 @@ function MnDateCustomElement() {
 
 
 /***/ }),
-/* 9 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const MnInput = __webpack_require__(1)
@@ -779,7 +1118,7 @@ module.exports = class MnEmail extends MnInput {
 
 
 /***/ }),
-/* 10 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnEmailCustomElement()
@@ -792,7 +1131,7 @@ function MnEmailCustomElement() {
   }
 
   if (!window.customElements.get('mn-email')) {
-    window.customElements.define('mn-email', __webpack_require__(9))
+    window.customElements.define('mn-email', __webpack_require__(14))
   }
 
   return window.customElements.get('mn-email')
@@ -800,7 +1139,7 @@ function MnEmailCustomElement() {
 
 
 /***/ }),
-/* 11 */
+/* 16 */
 /***/ (function(module, exports) {
 
 const {HTMLElement} = window
@@ -871,7 +1210,7 @@ module.exports = class MnForm extends HTMLElement {
   }
 
   get inputs() {
-    return Array.from(this.querySelectorAll('.mn-input'))
+    return Array.from(this.querySelectorAll('.mn-input, .mn-checkbox, .mn-radio'))
   }
 
   get data() {
@@ -927,7 +1266,31 @@ module.exports = class MnForm extends HTMLElement {
 
 
 /***/ }),
-/* 12 */
+/* 17 */
+/***/ (function(module, exports) {
+
+/* global angular */
+
+angular
+  .module('minimalist')
+  .directive('mnForm', MnFormDirective)
+
+function MnFormDirective() {
+  return {
+    restrict: 'C',
+    link(scope, element, attributes) {
+      const form = element[0]
+
+      form.addEventListener('submit', () => {
+        scope.$eval(attributes.submit)
+      })
+    }
+  }
+}
+
+
+/***/ }),
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnFormCustomElement()
@@ -940,7 +1303,7 @@ function MnFormCustomElement() {
   }
 
   if (!window.customElements.get('mn-form')) {
-    window.customElements.define('mn-form', __webpack_require__(11))
+    window.customElements.define('mn-form', __webpack_require__(16))
   }
 
   return window.customElements.get('mn-form')
@@ -948,7 +1311,68 @@ function MnFormCustomElement() {
 
 
 /***/ }),
-/* 13 */
+/* 19 */
+/***/ (function(module, exports) {
+
+/* global angular */
+
+angular
+  .module('minimalist')
+  .directive('mnInput', MnInputDirective)
+
+function MnInputDirective() {
+  return {
+    restrict: 'C',
+    require: 'ngModel',
+    link(scope, element, attributes, ngModel) {
+      const component = element[0]
+      const input = component.input
+      const isSelect = component.classList.contains('mn-select')
+
+      if (!attributes.name) {
+        const name = attributes.ngModel.split('.')[attributes.ngModel.split('.').length - 1]
+        component.setAttribute('name', name)
+      }
+
+      ngModel.$validators = {}
+      input.addEventListener('change', setViewValue)
+      input.addEventListener('blur', setViewValue)
+      input.addEventListener('input', setViewValue)
+
+      element.ready(() => {
+        component.value = ngModel.$modelValue
+        ngModel.$setViewValue(component.value)
+        scope.$watch(attributes.ngModel, setComponentValue)
+
+      })
+
+      scope.$on('$destroy', () => {
+        element.remove()
+      })
+
+      function setComponentValue(value) {
+        if (!isSelect || component.getAttribute('value') !== value && !angular.isObject(value)) {
+          component.value = value
+        }
+      }
+
+      function setViewValue(event) {
+        const activeElement = event.currentTarget === document.activeElement
+        const isDate = component.input.type === 'date'
+        const isNumber = component.classList.contains('mn-number')
+        const isBlur = event.type === 'blur'
+
+        if (isBlur || !activeElement || !isDate && !isNumber && !isSelect) {
+          ngModel.$setViewValue(component.value)
+        }
+      }
+    }
+  }
+}
+
+
+/***/ }),
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnInputCustomElement()
@@ -969,7 +1393,7 @@ function MnInputCustomElement() {
 
 
 /***/ }),
-/* 14 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const MnInput = __webpack_require__(1)
@@ -1181,7 +1605,7 @@ module.exports = class MnNumber extends MnInput {
 
 
 /***/ }),
-/* 15 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnNumberCustomElement()
@@ -1194,7 +1618,7 @@ function MnNumberCustomElement() {
   }
 
   if (!window.customElements.get('mn-number')) {
-    window.customElements.define('mn-number', __webpack_require__(14))
+    window.customElements.define('mn-number', __webpack_require__(21))
   }
 
   return window.customElements.get('mn-number')
@@ -1202,7 +1626,7 @@ function MnNumberCustomElement() {
 
 
 /***/ }),
-/* 16 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const MnInput = __webpack_require__(1)
@@ -1277,7 +1701,7 @@ module.exports = class MnPassword extends MnInput {
 
 
 /***/ }),
-/* 17 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnPasswordCustomElement()
@@ -1290,7 +1714,7 @@ function MnPasswordCustomElement() {
   }
 
   if (!window.customElements.get('mn-password')) {
-    window.customElements.define('mn-password', __webpack_require__(16))
+    window.customElements.define('mn-password', __webpack_require__(23))
   }
 
   return window.customElements.get('mn-password')
@@ -1298,11 +1722,153 @@ function MnPasswordCustomElement() {
 
 
 /***/ }),
-/* 18 */
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const MnCheckbox = __webpack_require__(4)
+const evaluate = __webpack_require__(2)
+
+module.exports = class MnRadio extends MnCheckbox {
+  constructor(self) {
+    self = super(self)
+    return self
+  }
+
+  connectedCallback() {
+    this.innerHTML = ''
+    this._setStyle()
+    super._setLabel()
+    this._setInput()
+    this._setCustomInput()
+    this._setForm()
+    this.checked = this.hasAttribute('checked')
+    this.disabled = this.hasAttribute('disabled')
+    this.readonly = this.hasAttribute('readonly')
+    this.name = this.hasAttribute('name')
+    this._setValidations()
+  }
+
+  _setStyle() {
+    this.classList.add('mn-radio')
+    this.classList.add('mn-option')
+  }
+
+  _setInput() {
+    this.input = document.createElement('input')
+    this.input.setAttribute('type', 'radio')
+    this.label.appendChild(this.input)
+
+    this.input.addEventListener('change', (event) => {
+      this.checked
+        ? this.setAttribute('checked', '')
+        : this.removeAttribute('checked')
+
+      this.options.forEach(option => {
+        if (option !== event.target.closest('mn-radio')) {
+          option.removeAttribute('checked')
+          option.input.checked = false
+        }
+
+        option.form && option.form.classList && option.form.classList.contains('submitted')
+          ? option.validate()
+          : null
+      })
+    })
+  }
+
+  _setCustomInput() {
+    const input = document.createElement('div')
+    input.classList.add('input')
+
+    this.label.appendChild(input)
+  }
+
+  _setValidations() {
+    this.validations = {
+      required: () => !this.value,
+    }
+  }
+
+  get options() {
+    const name = this.getAttribute('name')
+      ? `[name="${this.getAttribute('name')}"]`
+      : ':not([name])'
+
+    return Array.from(this.form.querySelectorAll(`.mn-radio${name}`))
+  }
+
+  get value() {
+    const value = this
+      .options
+      .filter(option => option.checked)
+      .map(option => option.hasAttribute('value')
+        ? evaluate(option.getAttribute('value'))
+        : option.getAttribute('placeholder')
+      )
+
+    return value[0]
+  }
+
+  set value(value) {
+    this.options.forEach(option => {
+      option.checked = false
+    })
+
+    const option = this.options.find(option => evaluate(option.getAttribute('value')) === value)
+
+    if (option) {
+      option.checked = true
+    }
+  }
+}
+
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* global angular */
+
+angular
+  .module('minimalist')
+  .directive('mnRadio', MnRadioDirective)
+
+module.exports = MnRadioDirective
+
+function MnRadioDirective() {
+  const MnCheckboxDirective = __webpack_require__(5)
+  return MnCheckboxDirective()
+}
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = MnRadioCustomElement()
+
+function MnRadioCustomElement() {
+  const supportsCustomElements = 'customElements' in window
+
+  if (!supportsCustomElements) {
+    __webpack_require__(0)
+  }
+
+  if (!window.customElements.get('mn-radio')) {
+    window.customElements.define('mn-radio', __webpack_require__(25))
+  }
+
+  return window.customElements.get('mn-radio')
+}
+
+
+/***/ }),
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const MnInput = __webpack_require__(1)
-const MnActionSheet = __webpack_require__(2)
+const MnActionSheet = __webpack_require__(3)
+const evaluate = __webpack_require__(2)
 
 module.exports = class MnSelect extends MnInput {
   constructor(self) {
@@ -1660,29 +2226,76 @@ module.exports = class MnSelect extends MnInput {
   }
 }
 
-function evaluate(value) {
-  try {
-    value = value.trim()
-    const isVariable = !value.startsWith('[')
-      && !value.startsWith('{')
-      && !value.startsWith('\'')
-      && !value.startsWith('"')
-      && !value.startsWith('`')
-      && value !== 'true'
-      && value !== 'false'
-      && isNaN(value)
 
-    return isVariable
-        ? eval(`'${value}'`) // convert to string
-        : eval(`(${value})`) // evaluate
-  } catch (e) {
-    return value
+/***/ }),
+/* 29 */
+/***/ (function(module, exports) {
+
+/* global angular */
+
+angular
+  .module('minimalist')
+  .directive('mnSelect', MnSelectDirective)
+
+function MnSelectDirective() {
+  return {
+    restrict: 'C',
+    require: 'ngModel',
+    link(scope, element) {
+      const component = element[0]
+
+      element.ready(() => {
+        component._setOptions()
+        component._setActionSheet()
+      })
+    }
+  }
+}
+
+angular
+  .module('minimalist')
+  .directive('option', MnSelectOptionDirective)
+
+function MnSelectOptionDirective() {
+  return {
+    restrict: 'C',
+    link(scope, element) {
+      const option = element[0]
+      const isMnOption = option.closest('.mn-select')
+
+      element.ready(() => {
+        if (isMnOption) {
+          const actionSheet = isMnOption.actionSheet
+          option.innerHTML = option.textContent
+            .split('')
+            .map(char => `<span class="char" data-char="${char.toLowerCase()}">${char}</span>`)
+            .join('')
+
+          if (actionSheet) {
+            let actionSheetOption = Array
+              .from(actionSheet.menu.querySelectorAll('.option'))
+              .filter(children => children.textContent === option.textContent)[0]
+
+            if (!actionSheetOption) {
+              actionSheetOption = document.createElement('div')
+              actionSheetOption.classList.add('option')
+              actionSheetOption.textContent = option.textContent
+              actionSheet.menu.appendChild(actionSheetOption)
+            }
+
+            element.bind('$destroy', () => {
+              actionSheet.menu.removeChild(actionSheetOption)
+            })
+          }
+        }
+      })
+    }
   }
 }
 
 
 /***/ }),
-/* 19 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MnSelectCustomElement()
@@ -1695,7 +2308,7 @@ function MnSelectCustomElement() {
   }
 
   if (!window.customElements.get('mn-select')) {
-    window.customElements.define('mn-select', __webpack_require__(18))
+    window.customElements.define('mn-select', __webpack_require__(28))
   }
 
   return window.customElements.get('mn-select')
@@ -1703,7 +2316,7 @@ function MnSelectCustomElement() {
 
 
 /***/ }),
-/* 20 */
+/* 31 */
 /***/ (function(module, exports) {
 
 const {HTMLElement} = window
@@ -1801,7 +2414,7 @@ module.exports = class MnSidenav extends HTMLElement {
 
 
 /***/ }),
-/* 21 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = MNSidenavCustomElement()
@@ -1814,7 +2427,7 @@ function MNSidenavCustomElement() {
   }
 
   if (!window.customElements.get('mn-sidenav')) {
-    window.customElements.define('mn-sidenav', __webpack_require__(20))
+    window.customElements.define('mn-sidenav', __webpack_require__(31))
   }
 
   return window.customElements.get('mn-sidenav')
