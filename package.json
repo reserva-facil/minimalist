@@ -6,7 +6,8 @@
   "main": "index.js",
   "files": [
     "webcomponents",
-    "angular.js"
+    "angular.js",
+    "index.css"
   ],
   "scripts": {
     "prestart": "scripts/api",

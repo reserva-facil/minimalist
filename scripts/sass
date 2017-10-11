@@ -2,6 +2,12 @@
 
 set -e
 
+./node_modules/.bin/node-sass index.scss index.css -q \
+--output-style compressed \
+--source-map true \
+--error-bell \
+--watch &
+
 ./node_modules/.bin/node-sass hotsite/app.scss docs/vendor.css -q \
 --output-style compressed \
 --source-map true \
