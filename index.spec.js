@@ -11,7 +11,8 @@ describe('minimalist', () => {
   it('should have webcomponents in package.json files', () => {
     expect(packageJSON.files).to.have.members([
       'webcomponents',
-      'angular.js'
+      'angular.js',
+      'index.css',
     ])
   })
 
