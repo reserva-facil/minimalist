@@ -20,23 +20,23 @@ function MnInputDirective() {
 
       element.ready(() => {
         scope.$watch(attributes.ngModel, setComponentValue)
-        component.value = component.hasAttribute('value')
-          ? component.getAttribute('value')
-          : ngModel.$modelValue
-        component.default = component.value
-        component.addEventListener('change', setModelValue)
-        setModelValue()
-      })
+      component.value = component.hasAttribute('value')
+        ? component.getAttribute('value')
+        : ngModel.$modelValue
+      component.default = component.value
+      component.addEventListener('change', setModelValue)
+      setModelValue()
+    })
 
       scope.$on('$destroy', () => {
         const keys = attributes.ngModel.split('.')
         const prop = keys.pop()
         if (scope.$parent[keys[0]]) {
-          const model = keys.reduce((obj, key) => obj[key], scope.$parent)
-          delete model[prop]
-        }
-        element.remove()
-      })
+        const model = keys.reduce((obj, key) => obj[key], scope.$parent)
+        delete model[prop]
+      }
+      element.remove()
+    })
 
       function setComponentValue(value, oldValue) {
         if (component.hasAttribute('multiple')) {
@@ -51,6 +51,11 @@ function MnInputDirective() {
       function setModelValue() {
         const componentExists = component.parentNode
         if (componentExists) {
+
+          if (angular.equals('MN-NUMBER', component.tagName) && angular.equals(NaN, component.value)) {
+            return
+          }
+
           const modelApplied = angular.equals(ngModel.$modelValue, component.value)
 
           if (!modelApplied) {
