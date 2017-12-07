@@ -23,7 +23,6 @@ module.exports = class MnNumber extends MnInput {
     super._setAttributeDisabled()
     super._setAttributeReadonly()
     super._setAttributeAutofocus()
-    this._setAttributeMaxlength()
     this._setAttributeMax()
     this._setAttributeMin()
     this._setValidations()
@@ -129,10 +128,6 @@ module.exports = class MnNumber extends MnInput {
           : null
       }
     })
-  }
-
-  _setAttributeMaxlength() {
-    this.maxlength = this.getAttribute('maxlength')
   }
 
   _setAttributeMax() {
