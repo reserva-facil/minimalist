@@ -455,7 +455,7 @@ function restricoes() {
       '</mn-list>',
     link(scope, element, attributes){
       setTimeout(() => {
-        element.hasClass('canCollapse') ? element.attr('collapse', 'collapse') : element.attr('draggable', 'draggable')
+        element.hasClass('canCollapse') ? element.attr('collapse', 'collapse') : element.attr('draggable', true)
       }, 100)
     }
   }
