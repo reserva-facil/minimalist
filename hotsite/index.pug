@@ -40,6 +40,9 @@ html
         span.mn-chip hello
 
       mn-number.mn-card(placeholder='Adultos' ng-model='home.numAdt' min='0' max='10' maxlength='2')
+      mn-number.mn-card(placeholder='Crianças' ng-model='home.numChd' min='0' max='10' maxlength='2' ng-disabled='true')
+
+      mn-button.action(ng-click='home.openDialog()') Teste
 
       mn-list.mn-card
         .test-to-nested-items
@@ -67,6 +70,24 @@ html
             mn-button(reset) reset
             mn-button(empty) empty
             mn-button.raised(submit) submit
+
+
+mn-dialog#restricoesAgrupadas
+  h2 Definir restrição
+
+  mn-form
+    .mn-layout-column
+      mn-input.flex(
+        placeholder='Valores'
+        name='values'
+        ng-model='home.valores'
+        required
+        multiple
+      )
+
+      mn-button(close-dialog) Cancelar
+      mn-button.raised(submit) Aplicar
+
 
     script(src='/vendor.js')
     script.

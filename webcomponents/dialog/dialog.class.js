@@ -13,6 +13,11 @@ module.exports = class MnDialog extends HTMLElement {
     this.setOpenEvents()
     this.setToggleEvents()
     this.setCloseEvents()
+    this.setCloseClickOutside()
+  }
+
+  setCloseClickOutside(enableCloseClickOutside) {
+    this.enableCloseClickOutside = enableCloseClickOutside
   }
 
   setStyle() {
@@ -97,10 +102,13 @@ module.exports = class MnDialog extends HTMLElement {
   }
 
   close() {
-    document.body.classList.remove('mn-dialog-visible')
-    this.classList.remove('visible')
-    document.body.classList.remove('mn-backdrop-visible')
-    this.dispatchEvent(new Event('close'))
+    const clickOutside = event.target.matches('.mn-dialog')
+    if (this.enableCloseClickOutside || !clickOutside) {
+      document.body.classList.remove('mn-dialog-visible')
+      this.classList.remove('visible')
+      document.body.classList.remove('mn-backdrop-visible')
+      this.dispatchEvent(new Event('close'))
+    }
   }
 
   toggle() {
