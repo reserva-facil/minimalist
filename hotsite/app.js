@@ -15,6 +15,14 @@ function HomeController() {
   this.houses = 'stark'
   this.number = 10
   this.numbers = [10, 20, 30, .5]
+  this.openDialog = openDialog
+
+  function openDialog() {
+    const dialog = document.querySelector('mn-dialog#restricoesAgrupadas')
+    dialog.setCloseClickOutside(true)
+    dialog.open()
+  }
+
 }
 
 angular
