@@ -39,11 +39,6 @@ html
         span.mn-chip hello
         span.mn-chip hello
 
-      mn-number.mn-card(placeholder='Adultos' ng-model='home.numAdt' min='0' max='10' maxlength='2')
-      mn-number.mn-card(placeholder='Crianças' ng-model='home.numChd' min='0' max='10' maxlength='2' ng-disabled='true')
-
-      mn-button.action(ng-click='home.openDialog()') Teste
-
       .mn-card.mn-layout-row.mn-layout-wrap
         mn-checkbox(placeholder='Lero' value='lero')
         mn-checkbox(placeholder='Lero 1' value='lero 1')
@@ -53,6 +48,8 @@ html
         mn-checkbox(placeholder='Lero 5' value='lero 5')
         mn-checkbox(placeholder='Lero 6' value='lero 6')
         mn-checkbox(placeholder='Lero 7' value='lero 7')
+
+      mn-button.action(ng-click='home.openDialog()') Teste
 
       mn-list.mn-card
         .test-to-nested-items
