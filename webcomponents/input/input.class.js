@@ -24,6 +24,7 @@ module.exports = class MnInput extends HTMLElement {
     this._setAttributeAutocomplete()
     this._setAttributeSpellcheck()
     this._setAttributeAutofocus()
+    this._setAttributeType()
     this._setValidations()
   }
 
@@ -37,6 +38,7 @@ module.exports = class MnInput extends HTMLElement {
       'maxlength',
       'autocapitalize',
       'autofocus',
+      'type',
     ]
   }
 
@@ -153,6 +155,10 @@ module.exports = class MnInput extends HTMLElement {
     this.maxlength = this.getAttribute('maxlength')
   }
 
+  _setAttributeType() {
+    this.type = this.getAttribute('type')
+  }
+
   _setAttributeAutocapitalize() {
     this.autocapitalize = this.getAttribute('autocapitalize') || 'off'
   }
@@ -266,6 +272,14 @@ module.exports = class MnInput extends HTMLElement {
       value
         ? this.input.setAttribute('maxlength', value)
         : this.input.removeAttribute('maxlength')
+    }
+  }
+
+  set type(value) {
+    if (this.input) {
+      value
+        ? this.input.setAttribute('type', value)
+        : this.input.removeAttribute('type')
     }
   }
 
