@@ -11,8 +11,9 @@ angular
 
 function HomeController() {
   this.name = 'darlan'
-  // this.houses = ['stark', 'lannister', 'targaryen']
-  this.houses = 'stark'
+  this.houses = ['stark', 'lannister', 'targaryen']
+  this.restricoesAgrupadas = []
+  // this.houses = 'stark'
   this.number = 10
   this.numbers = [10, 20, 30, .5]
   this.openDialog = openDialog
@@ -27,7 +28,7 @@ function HomeController() {
 
 angular
   .module('app')
-  .directive('houses', HousesSearchDirective)
+  .directive('housesSearch', HousesSearchDirective)
 
 function HousesSearchDirective() {
   return {

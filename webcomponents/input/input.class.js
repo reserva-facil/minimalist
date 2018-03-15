@@ -4,7 +4,7 @@ const evaluate = require('evaluate-string')
 module.exports = class MnInput extends HTMLElement {
   constructor(self) {
     self = super(self)
-    this.delimeterKeys = ['Comma', 'Enter', 'Space']
+    this.delimeterKeys = ['Comma', 'Enter', 'Space', 'NumpadEnter']
     return self
   }
 
