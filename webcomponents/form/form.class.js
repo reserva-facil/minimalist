@@ -35,7 +35,8 @@ module.exports = class MnForm extends HTMLElement {
     document.addEventListener('keydown', (event) => {
       const enter = event.key === 'Enter'
       const srcElementInsideForm = event.target.closest('mn-form')
-      if (enter && srcElementInsideForm) {
+      const sameElement = angular.equals(this, srcElementInsideForm)
+      if (enter && srcElementInsideForm && sameElement) {
         this.submit()
       }
     })

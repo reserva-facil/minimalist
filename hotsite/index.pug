@@ -11,49 +11,36 @@ html
   body(ng-app='app')
     include pages/home
 
-    //- section.tabs.mn-layout-container-full
-      mn-radio(placeholder='mn-button' name='tab' checked)
-      mn-radio(placeholder='mn-layout' name='tab')
-      mn-radio(placeholder='mn-card' name='tab')
-      mn-radio(placeholder='mn-sidenav' name='tab')
-      mn-radio(placeholder='mn-dialog' name='tab')
-      mn-radio(placeholder='mn-list' name='tab')
-      mn-radio(placeholder='mn-form' name='tab')
-      mn-radio(placeholder='mn-input' name='tab')
-      mn-radio(placeholder='mn-email' name='tab')
-      mn-radio(placeholder='mn-number' name='tab')
-      mn-radio(placeholder='mn-password' name='tab')
-      mn-radio(placeholder='mn-date' name='tab')
-      mn-radio(placeholder='mn-radio' name='tab')
-      mn-radio(placeholder='mn-checkbox' name='tab')
-      mn-radio(placeholder='mn-select' name='tab')
-      mn-radio(placeholder='mn-search' name='tab')
-      mn-radio(placeholder='mn-hidden' name='tab')
-
     //- include pages/button
 
     section.mn-layout-container(ng-controller='HomeController as home' style='margin-bottom: 2em')
 
+    mn-form
       h3 chips
       .mn-card.padding.mn-layout-row
         span.mn-chip hello
         span.mn-chip hello
 
-      mn-number.mn-card(placeholder='Adultos' ng-model='home.numAdt' min='0' max='10' maxlength='2')
-      mn-number.mn-card(placeholder='Crianças' ng-model='home.numChd' min='0' max='10' maxlength='2' ng-disabled='true')
-      mn-input.mn-card(placeholder='Hora' ng-model='home.hora' type='time')
+      mn-number.mn-card(placeholder='MnNumber' ng-model='home.numAdt' min='0' max='10' maxlength='2' required)
+      mn-number.mn-card(placeholder='MnNumberFilho' ng-model='home.numChd' min='0' max='10' maxlength='2' ng-disabled='true' required)
+      mn-input.mn-card(placeholder='MnInputHora' ng-model='home.hora' type='time' required)
 
-      //.mn-card.mn-layout-row.mn-layout-wrap
-      //  mn-checkbox(placeholder='Lero' value='lero')
-      //  mn-checkbox(placeholder='Lero 1' value='lero 1')
-      //  mn-checkbox(placeholder='Lero 2' value='lero 2')
-      //  mn-checkbox(placeholder='Lero 3' value='lero 3')
-      //  mn-checkbox(placeholder='Lero 4' value='lero 4')
-      //  mn-checkbox(placeholder='Lero 5' value='lero 5')
-      //  mn-checkbox(placeholder='Lero 6' value='lero 6')
-      //  mn-checkbox(placeholder='Lero 7' value='lero 7')
+      mn-button.raised(ng-click='home.openDialog()') MnButton
 
-      mn-button.action(ng-click='home.openDialog()') Teste
+      .mn-layout-column.mn-layout-sm-row
+        mn-search.mn-card(
+          placeholder='MnSearchMultiple'
+          ng-model='home.casas'
+          houses-search
+          multiple)
+
+      .mn-card.list.mn-item.mn-layout-row
+        h3.flex MnDialog
+        mn-button.action(
+          open-dialog='restricoesAgrupadas'
+          title='Adicionar'
+        )
+          .zmdi.zmdi-plus +
 
       mn-list.mn-card
         .test-to-nested-items
@@ -64,7 +51,12 @@ html
               .mn-item lorem 1
               .mn-item lorem 2
           .mn-item lero 3
-      //- .mn-card.padding
+
+      div.mn-layout-row.align-end
+        mn-button(ui-sref='^') Cancelar
+        mn-button.raised(submit) Salvar
+
+    //- .mn-card.padding
         mn-form(submit='home.submit()')
           .mn-layout-column
             p {{ home }}
@@ -81,7 +73,6 @@ html
             mn-button(reset) reset
             mn-button(empty) empty
             mn-button.raised(submit) submit
-
 
 mn-dialog#restricoesAgrupadas
   h2 Definir restrição
