@@ -4,7 +4,7 @@ const evaluate = require('evaluate-string')
 module.exports = class MnInput extends HTMLElement {
   constructor(self) {
     self = super(self)
-    this.delimeterKeys = ['Comma', 'Enter', 'Space', 'NumpadEnter']
+    this.delimeterKeys = ['Comma', 'Enter', 'Space', 'NumpadEnter', 'Tab']
     return self
   }
 
@@ -80,9 +80,27 @@ module.exports = class MnInput extends HTMLElement {
         this.input.dispatchEvent(new Event('blur'))
         event.preventDefault()
       }
+
+      // Backspace remove ultimo item
+      if (this.hasAttribute('multiple') && event.code === 'Backspace' && !this.input.value) {
+        this.value = this.value.splice(0, this.value.length-1)
+      }
     })
 
     this.input.addEventListener('blur', () => {
+      if (this.input.value && this.hasAttribute('multiple')) {
+        if (this.delimeterKeys.length) {
+          this.push(this.input.value)
+        }
+        this.input.value = ''
+      }
+
+      this.hasAttribute('value') || this.input.value
+        ? this.classList.add('has-value')
+        : this.classList.remove('has-value')
+    })
+
+    this.input.addEventListener('focus', () => {
       if (this.input.value && this.hasAttribute('multiple')) {
         if (this.delimeterKeys.length) {
           this.push(this.input.value)

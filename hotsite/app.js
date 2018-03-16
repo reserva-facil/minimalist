@@ -12,6 +12,7 @@ angular
 function HomeController() {
   this.name = 'darlan'
   this.houses = ['stark', 'lannister', 'targaryen']
+  this.casas = []
   this.restricoesAgrupadas = []
   // this.houses = 'stark'
   this.number = 10
@@ -32,29 +33,24 @@ angular
 
 function HousesSearchDirective() {
   return {
-    restrict: 'C',
+    restrict: 'A',
     require: 'ngModel',
     link(scope, element, attributes) {
-
+      element[0].keyValue = 'nome'
       element.bind('search', search)
 
       function search(event) {
-        const params = new URLSearchParams()
-        params.append('query', event.query)
-        const houses = new Request(`http://localhost:4000/houses`)
+        const houses = [{'nome':'stark', 'valor':'stark'}, {'nome':'lannister', 'valor':'lannister'}, {'nome':'targaryen', 'valor':'targaryen'}]
 
-        event.target
-          .fetch(houses)
-          .then(response => response.json())
-          .then(setOptions)
+        setOptions(houses)
 
-        function setOptions(response) {
-          const houses = response
-
-          houses.forEach(house => {
+        function setOptions(items) {
+          items.forEach(item => {
             const option = document.createElement('option')
-            option.textContent = house
-            option.setAttribute('value', house.toLowerCase())
+            const value = item['valor']
+
+            option.textContent = item.nome
+            option.setAttribute('value', value)
 
             event.target.appendChild(option)
           })

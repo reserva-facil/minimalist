@@ -107,6 +107,7 @@ module.exports = class MnSearch extends MnSelect {
       event.query = this.input.value
       this.dispatchEvent(event)
     })
+
   }
 
   fetch(request) {

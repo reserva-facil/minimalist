@@ -21,21 +21,21 @@ html
         span.mn-chip hello
         span.mn-chip hello
 
-      mn-number.mn-card(placeholder='Adultos' ng-model='home.numAdt' min='0' max='10' maxlength='2' required)
-      mn-number.mn-card(placeholder='Crianças' ng-model='home.numChd' min='0' max='10' maxlength='2' ng-disabled='true' required)
-      mn-input.mn-card(placeholder='Hora' ng-model='home.hora' type='time' required)
+      mn-number.mn-card(placeholder='MnNumber' ng-model='home.numAdt' min='0' max='10' maxlength='2' required)
+      mn-number.mn-card(placeholder='MnNumberFilho' ng-model='home.numChd' min='0' max='10' maxlength='2' ng-disabled='true' required)
+      mn-input.mn-card(placeholder='MnInputHora' ng-model='home.hora' type='time' required)
 
-      mn-button.action(ng-click='home.openDialog()') Teste
+      mn-button.raised(ng-click='home.openDialog()') MnButton
 
       .mn-layout-column.mn-layout-sm-row
         mn-search.mn-card(
-          placeholder='Casas'
+          placeholder='MnSearchMultiple'
           ng-model='home.casas'
           houses-search
           multiple)
 
       .mn-card.list.mn-item.mn-layout-row
-        h3.flex Restricoes
+        h3.flex MnDialog
         mn-button.action(
           open-dialog='restricoesAgrupadas'
           title='Adicionar'

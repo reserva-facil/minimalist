@@ -245,6 +245,9 @@ module.exports = class MnSelect extends MnInput {
 
       if (this.visible && clickOutside) {
         this.hide()
+      } else if (this.hasAttribute('multiple')) {
+        this.input.value = ''
+        this.filter = ''
       }
     })
   }
@@ -326,7 +329,7 @@ module.exports = class MnSelect extends MnInput {
     })
 
     this.input.addEventListener('keydown', (event) => {
-      const enter = event.key === 'Enter'
+      const enter = event.key === 'Enter' || event.key === 'Tab'
       const option = this.menu.querySelector('.option.focus')
 
       if (enter) {
