@@ -11,7 +11,7 @@ angular
 
 function HomeController() {
   this.name = 'darlan'
-  this.houses = ['stark', 'lannister', 'targaryen']
+  // this.houses = ['stark', 'lannister', 'targaryen']
   this.casas = []
   this.restricoesAgrupadas = []
   // this.houses = 'stark'
