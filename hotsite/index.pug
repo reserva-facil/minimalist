@@ -34,6 +34,25 @@ html
           houses-search
           multiple)
 
+      .mn-layout-column.mn-layout-sm-row
+        mn-search.mn-card(
+        placeholder='MnSearchSingle'
+        ng-model='home.casa'
+        houses-search)
+
+      .mn-layout-column.mn-layout-sm-row
+        mn-search.mn-card(
+        placeholder='MnSelectMultiple'
+        ng-model='home.casas'
+        houses-search
+        multiple)
+
+      .mn-layout-column.mn-layout-sm-row
+        mn-select.mn-card(
+        placeholder='MnSelectSingle'
+        ng-model='home.casa'
+        houses-search)
+
       .mn-card.list.mn-item.mn-layout-row
         h3.flex MnDialog
         mn-button.action(

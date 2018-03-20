@@ -332,12 +332,12 @@ module.exports = class MnSelect extends MnInput {
       const enter = event.key === 'Enter' || event.key === 'Tab'
       const option = this.menu.querySelector('.option.focus')
 
-      if (enter) {
+      if (enter && this.input.value) {
         event.preventDefault()
         event.stopPropagation()
       }
 
-      if (enter && option) {
+      if (enter && option && this.input.value) {
         const value = option
           ? option.getAttribute('value') || option.textContent
           : this.value
