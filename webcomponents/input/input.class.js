@@ -372,7 +372,7 @@ module.exports = class MnInput extends HTMLElement {
       //   ? evaluate(value)
       //   : value
 
-      item.setAttribute('value', typeof value === 'object' ? JSON.stringify(value) : value)
+      item.setAttribute('value', typeof value === 'object' ? evaluate(JSON.stringify(value)) : value)
       this.insertBefore(item, this.input)
 
       const values = Array
