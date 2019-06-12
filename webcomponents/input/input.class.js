@@ -368,16 +368,18 @@ module.exports = class MnInput extends HTMLElement {
       item.classList.add('value')
       item.textContent = text || value[this.keyValue] || value
       item.appendChild(buttonClose)
-      value = typeof value === 'string'
-        ? evaluate(value)
-        : value
+      // value = typeof value === 'string'
+      //   ? evaluate(value)
+      //   : value
 
       item.setAttribute('value', typeof value === 'object' ? JSON.stringify(value) : value)
       this.insertBefore(item, this.input)
 
       const values = Array
         .from(this.querySelectorAll('.value'))
-        .map(item => evaluate(item.getAttribute('value')) || item.textContent)
+        .map(item => item.getAttribute('value') === 'object'
+          ? evaluate(item.getAttribute('value'))
+          : item.getAttribute('value') || item.textContent)
 
       if (this.hasAttribute('multiple')) {
         this.setAttribute('value', JSON.stringify(values))
