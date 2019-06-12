@@ -47,7 +47,8 @@ function HousesSearchDirective() {
         function setOptions(items) {
           items.forEach(item => {
             const option = document.createElement('option')
-            const value = item['valor']
+            // const value = item['valor']
+            const value = JSON.stringify(item)
 
             option.textContent = item.nome
             option.setAttribute('value', value)

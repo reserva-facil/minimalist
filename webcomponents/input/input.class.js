@@ -377,7 +377,7 @@ module.exports = class MnInput extends HTMLElement {
 
       const values = Array
         .from(this.querySelectorAll('.value'))
-        .map(item => item.getAttribute('value') === 'object'
+        .map(item => evaluate(item.getAttribute('value')) === 'object'
           ? evaluate(item.getAttribute('value'))
           : item.getAttribute('value') || item.textContent)
 
