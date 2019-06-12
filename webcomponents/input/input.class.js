@@ -377,9 +377,11 @@ module.exports = class MnInput extends HTMLElement {
 
       const values = Array
         .from(this.querySelectorAll('.value'))
-        .map(item => evaluate(item.getAttribute('value')) === 'object'
-          ? evaluate(item.getAttribute('value'))
+        .map(item => typeof evaluate(item.getAttribute('value')) === 'object'
+          ? evaluate(item.getAttribute('value')) || item.textContent
           : item.getAttribute('value') || item.textContent)
+
+      console.log(values)
 
       if (this.hasAttribute('multiple')) {
         this.setAttribute('value', JSON.stringify(values))
