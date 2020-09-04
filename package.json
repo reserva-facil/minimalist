@@ -59,7 +59,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^2.0.3",
     "mocha": "^3.3.0",
-    "node-sass": "^4.5.2",
+    "node-sass": "^4.13.1",
     "pug-cli": "^1.0.0-alpha6",
     "require-self": "^0.1.0",
     "sinon": "^2.4.1",
