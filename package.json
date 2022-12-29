@@ -57,14 +57,14 @@
     "karma-safari-launcher": "^1.0.0",
     "karma-scss-preprocessor": "git+https://git@github.com/darlanmendonca/karma-scss-preprocessor.git#own-version-of-lodash",
     "karma-sourcemap-loader": "^0.3.7",
-    "karma-webpack": "^2.0.3",
+    "karma-webpack": "^5.0.0",
     "mocha": "^3.3.0",
     "node-sass": "^4.5.2",
     "pug-cli": "^1.0.0-alpha6",
     "require-self": "^0.1.0",
     "sinon": "^2.4.1",
     "uglify-es": "^3.0.10",
-    "webpack": "^2.5.1",
+    "webpack": "^5.75.0",
     "yargs": "^8.0.1"
   },
   "dependencies": {
